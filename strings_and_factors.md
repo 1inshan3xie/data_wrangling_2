@@ -1,9 +1,7 @@
----
-title: "Strings and Factors"
-output: github_document
----
+Strings and Factors
+================
 
-```{r eval = FALSE}
+``` r
 #一般画图的操作：预先设定好自己喜欢的theme和color
 library(tidyverse)
 
@@ -23,24 +21,47 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-```{r}
+``` r
 library(rvest)
 library(p8105.datasets)
 library(tidyverse)
 ```
 
+    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+    ## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+    ## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+    ## ✔ purrr     1.0.2     
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ✖ dplyr::filter()         masks stats::filter()
+    ## ✖ readr::guess_encoding() masks rvest::guess_encoding()
+    ## ✖ dplyr::lag()            masks stats::lag()
+    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
 ## Strings
-```{r}
+
+``` r
 string_vec = c("my", "name", "is", "jeff")
 
 str_detect(string_vec,"jeff")
+```
 
+    ## [1] FALSE FALSE FALSE  TRUE
+
+``` r
 str_replace(string_vec, "jeff", "Jeff")
+```
 
+    ## [1] "my"   "name" "is"   "Jeff"
+
+``` r
 str_replace(string_vec, "e", "E")
 ```
 
-```{r}
+    ## [1] "my"   "namE" "is"   "jEff"
+
+``` r
 string_vec = c(
   "i think we all rule for participating",
   "i think i have been caught",
@@ -50,12 +71,18 @@ string_vec = c(
 
 #beginning of a line
 str_detect(string_vec, "^i think")
+```
 
+    ## [1]  TRUE  TRUE  TRUE FALSE
+
+``` r
 #end of a line
 str_detect(string_vec, "i think$")
 ```
 
-```{r}
+    ## [1] FALSE FALSE FALSE  TRUE
+
+``` r
 string_vec = c(
   "Time for a Pumpkin Spice Latte!",
   "went to the #pumpkinpatch last weekend",
@@ -64,16 +91,30 @@ string_vec = c(
   )
 
 str_detect(string_vec, "pumpkin")
+```
 
+    ## [1] FALSE  TRUE FALSE FALSE
+
+``` r
 str_detect(string_vec, "Pumpkin")
+```
 
+    ## [1]  TRUE FALSE  TRUE FALSE
+
+``` r
 str_detect(string_vec, "PUMPKIN")
+```
 
+    ## [1] FALSE FALSE FALSE  TRUE
+
+``` r
 ## multiple choice(中括号内部表示出现a/b都可以)
 str_detect(string_vec, "[Pp]umpkin")
 ```
 
-```{r}
+    ## [1]  TRUE  TRUE  TRUE FALSE
+
+``` r
 string_vec = c(
   '7th inning stretch',
   '1st half soon to begin. Texas won the toss.',
@@ -84,8 +125,11 @@ string_vec = c(
 str_detect(string_vec, "[0-9][a-zA-Z]")
 ```
 
+    ## [1]  TRUE  TRUE FALSE  TRUE
+
 a little weirder
-```{r}
+
+``` r
 string_vec = c(
   'Its 7:11 in the evening',
   'want to go to 7-11?',
@@ -97,8 +141,11 @@ string_vec = c(
 str_detect(string_vec, "7.11")
 ```
 
+    ## [1]  TRUE  TRUE FALSE  TRUE
+
 How things start to get real strange
-```{r}
+
+``` r
 string_vec = c(
   'The CI is [2, 5]',
   ':-]',
@@ -110,19 +157,14 @@ string_vec = c(
 str_detect(string_vec, "\\[")
 ```
 
+    ## [1]  TRUE FALSE  TRUE  TRUE
+
 ## Factors
-```{r}
+
+``` r
 vec_sex = factor(c("male", "male", "female", "female"))
 vec_sex
 ```
 
-
-
-
-
-
-
-
-
-
-
+    ## [1] male   male   female female
+    ## Levels: female male
