@@ -114,6 +114,15 @@ str_detect(string_vec, "\\[")
 ```{r}
 vec_sex = factor(c("male", "male", "female", "female"))
 vec_sex
+as.numeric(vec_sex)
+```
+
+do some releveling
+```{r}
+#把male放在前面，转换成数字时male就变成了1
+vec_sex = fct_relevel(vec_sex, "male")
+vec_sex
+as.numeric(vec_sex)
 ```
 
 

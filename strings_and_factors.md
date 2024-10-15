@@ -168,3 +168,26 @@ vec_sex
 
     ## [1] male   male   female female
     ## Levels: female male
+
+``` r
+as.numeric(vec_sex)
+```
+
+    ## [1] 2 2 1 1
+
+do some releveling
+
+``` r
+#把male放在前面，转换成数字时male就变成了1
+vec_sex = fct_relevel(vec_sex, "male")
+vec_sex
+```
+
+    ## [1] male   male   female female
+    ## Levels: male female
+
+``` r
+as.numeric(vec_sex)
+```
+
+    ## [1] 1 1 2 2
