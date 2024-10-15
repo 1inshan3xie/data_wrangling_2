@@ -125,7 +125,77 @@ vec_sex
 as.numeric(vec_sex)
 ```
 
+## Revisit some examples in the past
+### NSDUH
+```{r}
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
 
+drug_use_html = read_html(nsduh_url)
+
+marj_use_df = 
+  drug_use_html |>
+  html_table() |>
+  first() |>
+  slice(-1)
+```
+
+```{r}
+data_marj = 
+  marj_use_df |>
+  select(-contains("P Value")) |>
+  pivot_longer(
+    cols = -State,
+    names_to = "age_year",
+    values_to = "percent"
+  ) |>
+  separate(age_year, into = c("age", "year"), sep = "\\(") |>
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_remove(percent, "[a-c]$"),
+    percent = as.numeric(percent)
+  )
+```
+
+```{r}
+data_marj |>
+  filter(age == "12-17") |>
+  ##把 state按照percent重新排序，才会获得从小到大的
+  mutate(State = fct_reorder(State, percent)) |>
+  ggplot(aes(x = State, y = percent, color = year)) +
+  geom_point() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+### One more example NYC restaurant Inspections
+```{r}
+data("rest_inspec")
+
+rest_inspec |> 
+  group_by(boro, grade) |> 
+  summarize(n = n()) |> 
+  pivot_wider(names_from = grade, values_from = n)
+```
+
+```{r}
+rest_inspec = rest_inspec |> 
+  filter(str_detect(grade, "[A-Z]"),
+         !(boro == "Missing"))
+
+rest_inspec |> 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) |>
+  mutate(boro = str_replace(boro, "MANHATTAN", "THE CITY"),
+    boro = fct_infreq(boro)) |>
+  ggplot(aes(x = boro)) +
+  geom_bar()
+```
+
+One last thing about factors
+```{r}
+rest_inspec |>
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) |>
+  mutate(boro = fct_infreq(boro)) |>
+  lm(zipcode ~ boro, data = _)
+```
 
 
 

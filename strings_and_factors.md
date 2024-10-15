@@ -191,3 +191,108 @@ as.numeric(vec_sex)
 ```
 
     ## [1] 1 1 2 2
+
+## Revisit some examples in the past
+
+### NSDUH
+
+``` r
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+drug_use_html = read_html(nsduh_url)
+
+marj_use_df = 
+  drug_use_html |>
+  html_table() |>
+  first() |>
+  slice(-1)
+```
+
+``` r
+data_marj = 
+  marj_use_df |>
+  select(-contains("P Value")) |>
+  pivot_longer(
+    cols = -State,
+    names_to = "age_year",
+    values_to = "percent"
+  ) |>
+  separate(age_year, into = c("age", "year"), sep = "\\(") |>
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_remove(percent, "[a-c]$"),
+    percent = as.numeric(percent)
+  )
+```
+
+``` r
+data_marj |>
+  filter(age == "12-17") |>
+  ##把 state按照percent重新排序，才会获得从小到大的
+  mutate(State = fct_reorder(State, percent)) |>
+  ggplot(aes(x = State, y = percent, color = year)) +
+  geom_point() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+![](strings_and_factors_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+### One more example NYC restaurant Inspections
+
+``` r
+data("rest_inspec")
+
+rest_inspec |> 
+  group_by(boro, grade) |> 
+  summarize(n = n()) |> 
+  pivot_wider(names_from = grade, values_from = n)
+```
+
+    ## `summarise()` has grouped output by 'boro'. You can override using the
+    ## `.groups` argument.
+
+    ## # A tibble: 6 × 8
+    ## # Groups:   boro [6]
+    ##   boro              A     B     C `Not Yet Graded`     P     Z  `NA`
+    ##   <chr>         <int> <int> <int>            <int> <int> <int> <int>
+    ## 1 BRONX         13688  2801   701              200   163   351 16833
+    ## 2 BROOKLYN      37449  6651  1684              702   416   977 51930
+    ## 3 MANHATTAN     61608 10532  2689              765   508  1237 80615
+    ## 4 Missing           4    NA    NA               NA    NA    NA    13
+    ## 5 QUEENS        35952  6492  1593              604   331   913 45816
+    ## 6 STATEN ISLAND  5215   933   207               85    47   149  6730
+
+``` r
+rest_inspec = rest_inspec |> 
+  filter(str_detect(grade, "[A-Z]"),
+         !(boro == "Missing"))
+
+rest_inspec |> 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) |>
+  mutate(boro = str_replace(boro, "MANHATTAN", "THE CITY"),
+    boro = fct_infreq(boro)) |>
+  ggplot(aes(x = boro)) +
+  geom_bar()
+```
+
+![](strings_and_factors_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+One last thing about factors
+
+``` r
+rest_inspec |>
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")) |>
+  mutate(boro = fct_infreq(boro)) |>
+  lm(zipcode ~ boro, data = _)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = zipcode ~ boro, data = mutate(filter(rest_inspec, 
+    ##     str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]")), boro = fct_infreq(boro)))
+    ## 
+    ## Coefficients:
+    ##       (Intercept)       boroBROOKLYN         boroQUEENS          boroBRONX  
+    ##           10025.2             1194.2             1313.8              440.7  
+    ## boroSTATEN ISLAND  
+    ##             282.2
